@@ -5,7 +5,7 @@ CIS 520 - Programming Project #1
 ---- GROUP ----
 
 Kyle Brown <kyle16@k-state.edu>
-Steven Mason <smason??????@k-state.edu>
+Steven Mason <scmason@k-state.edu>
 ...
 
 ---- PRELIMINARIES ----

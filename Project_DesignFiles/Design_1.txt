@@ -6,7 +6,7 @@ CIS 520 - Programming Project #1
 
 Kyle Brown <kyle16@k-state.edu>
 Steven Mason <scmason@k-state.edu>
-...
+
 
 ---- PRELIMINARIES ----
 
@@ -27,6 +27,17 @@ Steven Mason <scmason@k-state.edu>
 >> `struct' member, global or static variable, `typedef', or
 >> enumeration.  Identify the purpose of each in 25 words or less.
 
+In timer.c added static variable:
+	static struct list wait_list;
+	/* This holds the threads waiting (not busy waiting)	*/
+In timer.c added function:
+	bool ready_time_earlier (const struct list_elem *a, const struct list_elem *b, void *aud);
+	/* This is a function that returns true if a time is before b time, else return false.  */
+
+In thread.h struct thread added variable:
+	int64_t ready_time;		// holds the time in ticks when the thread will be added to ready list.
+
+I
 
 ---- ALGORITHMS ----
 
@@ -36,6 +47,23 @@ Steven Mason <scmason@k-state.edu>
 >> A3: What steps are taken to minimize the amount of time spent in
 >> the timer interrupt handler?
 
+A2:	When timer_sleep() is called, the interrupt handler is turned on. 
+	Check to see if ticks <= 0 because then it won't need to be put on wait_list and returns immediately.
+	Set temp variable start to timer_ticks();
+	Set current thread ready_time to start + ticks.
+	
+	Add to wait list.
+	.
+	Block the thread.
+	Disable interrupts
+
+	
+	In timer interrupt handler, it checks if enough time has elapsed
+	Then remove from wait_list
+	Then unblock it.
+
+
+A3:	
 
 ---- SYNCHRONIZATION ----
 

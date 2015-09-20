@@ -24,6 +24,8 @@ typedef int tid_t;
 #define PRI_DEFAULT 31                  /* Default priority. */
 #define PRI_MAX 63                      /* Highest priority. */
 
+#define PRI_DONATION_DEPTH 8            /* Depth of nested donations */
+
 /* A kernel thread or user process.
 
    Each thread structure is stored in its own 4 kB page.  The
@@ -95,6 +97,11 @@ struct thread
 	
 	/* For Alarm Clock timer sleep */
 	int64_t ready_time;                 /* Time (in ticks) to wake up thread */
+	
+	/* For Priority Scheduler */
+	int orig_priority;                /* Original priority before donation */
+	struct lock *wait_lock;
+	struct list hold_locks;
 
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
@@ -133,8 +140,15 @@ void thread_yield (void);
 typedef void thread_action_func (struct thread *t, void *aux);
 void thread_foreach (thread_action_func *, void *);
 
+void thread_still_highest_priority (void);
+
+bool thread_priority_higher (const struct list_elem *a, const struct list_elem *b, void *aux UNUSED);
+
 int thread_get_priority (void);
 void thread_set_priority (int);
+
+void thread_donate_priority (struct lock *);
+void thread_refresh_priority (struct thread *);
 
 int thread_get_nice (void);
 void thread_set_nice (int);

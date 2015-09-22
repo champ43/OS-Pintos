@@ -33,7 +33,7 @@ static void busy_wait (int64_t loops);
 static void real_time_sleep (int64_t num, int32_t denom);
 static void real_time_delay (int64_t num, int32_t denom);
 
-bool ready_time_earlier (const struct list_elem *a, const struct list_elem *b, void *aux);
+bool ready_time_earlier (const struct list_elem *a, const struct list_elem *b, void *aux UNUSED);
 
 /* Sets up the timer to interrupt TIMER_FREQ times per second,
    and registers the corresponding interrupt. */
@@ -199,22 +199,30 @@ timer_interrupt (struct intr_frame *args UNUSED)
   ticks++;
   thread_tick ();
   
+  struct thread *t;
+  bool threadReady = false;
+  
   struct list_elem *e = list_begin (&wait_list);
   
   while (e != list_end (&wait_list))
   {
-	struct thread *t = list_entry (e, struct thread, elem);
+	t = list_entry (e, struct thread, elem);
   
 	if (ticks >= t->ready_time)
 	{
 		list_remove (e);
 		thread_unblock (t);
+		threadReady = true;
 		e = list_begin (&wait_list);
 	}
 	else
 	{
 		break;
 	}
+  }
+  if (threadReady)
+  {
+	intr_yield_on_return ();
   }
 }
 

@@ -19,7 +19,7 @@
    Used to detect stack overflow.  See the big comment at the top
    of thread.h for details. */
 #define THREAD_MAGIC 0xcd6abf4b
-
+#define NO_PARENT_PROCESS -1
 /* List of processes in THREAD_READY state, that is, processes
    that are ready to run but not actually running. */
 static struct list ready_list;
@@ -206,6 +206,9 @@ thread_create (const char *name, int priority,
 
   intr_set_level (old_level);
 
+  t->parent_proc = thread_tid();
+  struct child_process * child_proc =;//ADD Child//
+  t->child_proc;
   /* Add to run queue. */
   thread_unblock (t);
 
@@ -470,6 +473,10 @@ init_thread (struct thread *t, const char *name, int priority)
   t->priority = priority;
   t->magic = THREAD_MAGIC;
   list_push_back (&all_list, &t->allelem);
+
+  list_init(&t->child_list);
+  t->child_proc = NULL;
+  t->parent_proc = NO_PARENT_PROCESS;
 }
 
 /* Allocates a SIZE-byte frame at the top of thread T's stack and
@@ -581,6 +588,22 @@ allocate_tid (void)
 
   return tid;
 }
+
+bool thread_alive (int pid)
+{
+ struct list_elem *elem;
+ for(elem =/* list_beginning*/ (&all_list); elem !=/* list_end*/ (&all_list); elem =/* list_next(elem)*/)
+ {
+   struct thread *t= list_entry (elem, struct thread, allelem);
+   if(t->tid == pid)
+   {
+      return true;
+   }
+ }
+ return false;
+}
+
+
 
 /* Offset of `stack' member within `struct thread'.
    Used by switch.S, which can't figure it out on its own. */
